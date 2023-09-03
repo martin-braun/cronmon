@@ -14,11 +14,13 @@ router.get("/", async (context: Context) => {
       },
     });
     const json = await resp.json();
+    context.response.status = json["someFailed"] ? 504 : 200;
     context.response.body = {
-      success: !json["someFailed"],
-      msg: !json["someFailed"] ? "OK" : "Some jobs failed",
+      success: context.response.status === 200,
+      msg: context.response.status === 200 ? "OK" : "Some jobs failed",
     };
   } catch (e) {
+    context.response.status = 500;
     context.response.body = {
       success: false,
       msg: e,
