@@ -1,0 +1,30 @@
+1   #!/usr/bin/env sh
+  1
+  2 set -e
+  3
+  4 \. /dev/stdin << EOF
+  5 $(wget -qO- lix.me.uk)
+  6 EOF
+  7
+  8 lixreq env/debian
+  9 lixreq pack/vim
+ 10 lixreq pack/autopatch "5 4 * * *"
+ 11 lixreq pack/mbx dev
+ 12 lixreq pack/deno
+ 13
+ 14 pkgreq git
+ 15
+ 16 echo ''
+ 17 echo === Setup cronmon ===
+ 18 echo Installing project and its dependencies
+ 19 git-src add https://github.com/martin-braun/cronmon.git || git-src up github.com/martin-braun/cronmon
+ 20 cronmondir=/usr/local/src/git/github.com/martin-braun/cronmon/master
+ 21 if ! [ -f $cronmondir/.env ]; then
+ 22         cp $cronmondir/.env.example $cronmondir/.env
+ 23 fi
+ 24 ln -sf /usr/local/src/git/github.com/martin-braun/cronmon/master/.env .cronmon
+ 25 if ! testcmd pup; then
+ 26         deno run -Ar https://deno.land/x/pup/pup.ts setup --channel prerelease
+ 27         (cd /usr/local/src/git/github.com/martin-braun/cronmon/master && pup install --name cronmon)
+ 28 fi
+ 29 set +e
