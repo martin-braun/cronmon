@@ -2,7 +2,7 @@
   "processes": [
     {
       "id": "cronmon",
-      "cmd": "cronmon.ts",
+      "cmd": "deno run --ext=ts --unstable --allow-read --allow-net --import-map=deno.json --lock=lock.json cronmon.ts",
       "autostart": true
     }
   ]
