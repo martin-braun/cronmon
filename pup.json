@@ -1,0 +1,9 @@
+{
+  "processes": [
+    {
+      "id": "cronmon",
+      "cmd": "cronmon.ts",
+      "autostart": true
+    }
+  ]
+}
