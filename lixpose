@@ -24,7 +24,7 @@ if ! [ $(git-src ls | grep github.com/martin-braun/cronmon) ]; then
 	echo '#!/usr/bin/env sh' > "$sys_upgrade_ext_dir/cronmon.sh"
 	echo 'git-src up github.com/martin-braun/cronmon' >> "$sys_upgrade_ext_dir/cronmon.sh"
 fi
-cronmondir=/usr/local/src/git/github.com/martin-braun/cronmon/master
+cronmondir="$(git-src dir github.com/martin-braun/cronmon)"
 if ! [ -f $cronmondir/.env ]; then
 	cp $cronmondir/.env.example $cronmondir/.env
 fi
