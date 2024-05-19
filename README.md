@@ -1,6 +1,6 @@
 # cronmon
 
-This is a Debian-hosted status monitor proxy for your cron jobs at cron-job.org (self-hosted should also work).
+This is a simplified Debian-hosted status monitor proxy for your cron jobs at cron-job.org (self-hosted should also work). Its purpose is to simply indicate if there are failed jobs or not.
 
 ## Dependencies
 
