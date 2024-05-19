@@ -14,17 +14,19 @@ router.get("/", async (context: Context) => {
       },
     });
     const json = await resp.json();
-    const failedJobs = json["jobs"].filter((job: { [x: string]: number; }) => job["lastStatus"] > 1);
-      if (failedJobs.length > 0) {
-        context.response.status = 504;
-        context.response.body = {
-          success: false,
-          msg: "Some jobs failed",
-          // deno-lint-ignore no-explicit-any
-          failedJobs: failedJobs.map((job: { [x: string]: any; }) => job["title"]),
-        };
-        return;
-      }
+    const failedJobs = json["jobs"].filter(
+      (job: { [x: string]: number }) => job["enabled"] && job["lastStatus"] > 1
+    );
+    if (failedJobs.length > 0) {
+      context.response.status = 504;
+      context.response.body = {
+        success: false,
+        msg: "Some jobs failed",
+        // deno-lint-ignore no-explicit-any
+        failedJobs: failedJobs.map((job: { [x: string]: any }) => job["title"]),
+      };
+      return;
+    }
     context.response.body = {
       success: true,
       msg: "OK",
