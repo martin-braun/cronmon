@@ -1,0 +1,15 @@
+meta {
+  name: TEST
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{API_URL}}/jobs
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{API_KEY}}
+}

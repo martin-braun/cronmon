@@ -1,0 +1,11 @@
+{
+  "version": "1",
+  "name": "cronmon",
+  "type": "collection",
+  "ignore": [".git", ".vim", "ansible"],
+  "presets": {
+    "requestType": "http",
+    "requestUrl": "{{HOST}}/"
+  }
+}
+
