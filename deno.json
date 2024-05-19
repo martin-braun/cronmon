@@ -1,7 +1,8 @@
 {
     "imports": {
-        "std/": "https://deno.land/std@0.192.0/",
-        "oak/": "https://deno.land/x/oak@v12.6.1/"
+        "std/": "https://deno.land/std@0.224.0/",
+        "oak/": "https://deno.land/x/oak@v16.0.0/",
+		"dirname/": "https://deno.land/x/dirname@1.1.2/"
     }
 }
 
