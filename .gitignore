@@ -1,4 +1,5 @@
 /.pup.json-data/
+environments/live.bru
 
 # Created by https://www.toptal.com/developers/gitignore/api/deno,linux,macos,dotenv,windows,intellij+all,visualstudio,visualstudiocode,vim
 # Edit at https://www.toptal.com/developers/gitignore?templates=deno,linux,macos,dotenv,windows,intellij+all,visualstudio,visualstudiocode,vim
