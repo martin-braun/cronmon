@@ -1,13 +1,31 @@
 # cronmon
 
-This is a working first draft of a status monitor proxy for your cron jobs at cron-job.org (self-hosted should also work).
+This is a Debian-hosted status monitor proxy for your cron jobs at cron-job.org (self-hosted should also work).
 
-## Setup
+## Dependencies
 
-- Copy `.env.example` to `.env` and fill in your bearer token (`CRON_JOB_API_KEY`)
-- Upload to your server or install `git` and `git clone git@github.com:martin-braun/cronmon.git && cd cronmon`
-- Install [Deno](https://deno.land) and [Pup](https://deno.land/x/pup)
-- Run `pup install --name cronmon`
+- Deno
+- Ansible (for deployment)
+- rsync (for deployment)
+
+## Development
+
+- Run `cp -n .env.example .env` to bootstrap `.env`
+- Modify `.env`
+- Cache your deps via `./deps.ts`
+- Run `./cronmon.ts` to start
+
+## Deployment
+
+The deployment is fully automated via `ansible-playbook` and `ansible-galaxy`. It's meant to be installed on a fresh Debian system. It will install `cronmon` in combination with `nginx` (reverse proxy) on port 80. For this do the following:
+
+- Install Ansible
+- Run `ansible-galaxy install -r requirements.yml && cp -n inventory.cfg.example inventory.cfg` to bootstrap ansible files (collections, roles and inventory template)
+- Update production remote hosts and variables in `inventory.cfg`
+- Run `ansible-playbook -v playbook.yml` to deploy to all hosts (or `ansible-playbook -v playbook.yml -l localhost:host1:host2:..` for explicit deployment, localhost is mandatory)
+
+> [!NOTE]
+> If you want to service this proxy via SSL, consider CloudFlare or pfSense. You can also choose to incorperate `certbot` into the `playbook.yml`, but this is no objective of this project.
 
 ## Usage
 

@@ -1,0 +1,27 @@
+[Unit]
+Description=Cronmon Deno Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+SyslogIdentifier=cronmon
+User={{ app_role }}
+Group={{ app_role }}
+Type=simple
+WorkingDirectory={{ app_cwd }}
+; CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+; AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+; WatchdogSec=30s
+; Environment=VAR1=value1 VAR2=value2
+ExecStart=deno run --ext=ts --allow-env --allow-read --allow-net --import-map={{ app_cwd }}/deno.json --lock={{ app_cwd }}/lock.json {{ app_cwd }}/cronmon.ts
+Restart=always
+RestartSec=5s
+ProtectSystem=full
+ProtectHome=no
+PrivateTmp=yes
+PrivateDevices=yes
+
+[Install]
+WantedBy=multi-user.target
+
+; vi: ft=systemd

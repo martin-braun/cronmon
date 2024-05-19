@@ -1,8 +1,11 @@
-/.pup.json-data/
 environments/live.bru
+inventory.cfg
 
-# Created by https://www.toptal.com/developers/gitignore/api/deno,linux,macos,dotenv,windows,intellij+all,visualstudio,visualstudiocode,vim
-# Edit at https://www.toptal.com/developers/gitignore?templates=deno,linux,macos,dotenv,windows,intellij+all,visualstudio,visualstudiocode,vim
+# Created by https://www.toptal.com/developers/gitignore/api/vim,deno,linux,macos,dotenv,windows,intellij+all,visualstudio,visualstudiocode,ansible
+# Edit at https://www.toptal.com/developers/gitignore?templates=vim,deno,linux,macos,dotenv,windows,intellij+all,visualstudio,visualstudiocode,ansible
+
+### Ansible ###
+*.retry
 
 ### Deno ###
 /.idea/
@@ -606,4 +609,4 @@ FodyWeavers.xsd
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
-# End of https://www.toptal.com/developers/gitignore/api/deno,linux,macos,dotenv,windows,intellij+all,visualstudio,visualstudiocode,vim
+# End of https://www.toptal.com/developers/gitignore/api/vim,deno,linux,macos,dotenv,windows,intellij+all,visualstudio,visualstudiocode,ansible

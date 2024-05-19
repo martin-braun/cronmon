@@ -1,0 +1,7 @@
+---
+roles:
+  - name: coglinev3.ansible_python
+  - name: derJD.reboot
+collections:
+  - name: ansible.posix
+  - name: community.general

@@ -1,0 +1,14 @@
+cronmon proxy_server_name=myserver.example.org
+
+[all:vars]
+locale_encoding=UTF-8
+locale_language=en_US
+locale_language_all=en_US:en
+locale_origin=en_US
+locale_time=C
+system_timezone=Etc/UTC
+app_role=cronmon
+app_cwd=/var/deno/cronmon
+env_cron_job_api_url=https://api.cron-job.org
+env_cron_job_api_key=00000000000000000000000000000000000000000000
+; vi: ft=dosini

@@ -1,0 +1,191 @@
+- name: Cronmon Local Setup
+  hosts: localhost
+  gather_facts: True
+  tasks:
+    # # DEBUG
+    # - name: Show localhost hostvars
+    #   debug:
+    #     var: hostvars['localhost']
+  # NOTE(martin-braun): We want to gather local facts to compare source and target os_family
+
+- name: Cronmon Server Deploy
+  hosts: all
+  # gather_facts: False
+  # strategy: linear
+
+  pre_tasks:
+
+  roles:
+    - role: coglinev3.ansible_python # ensures python is installed via raw instruction
+
+  tasks:
+    # INIT
+    - setup: # gather remote facts
+    - name: Prepare custom vars
+      set_fact:
+        is_debian: "{{ ansible_facts['os_family'] == 'Debian' }}"
+
+    # # DEBUG
+    # - name: Show vars
+    #   debug:
+    #     var: vars
+    
+    # VALIDATION
+    - name: Validate OS
+      fail:
+        msg: Unsupported OS
+      when: not is_debian
+    - name: Confirm OS
+      debug:
+        msg: "OS OK: {{ ansible_facts['os_family'] }}"
+      when: is_debian
+
+    # PAUSE
+    - name: Ensure app service stopped (maintenance)
+      systemd:
+        name: cronmon
+        enabled: False
+        state: stopped
+        masked: False
+      changed_when: False
+      failed_when: False
+
+    # TIME
+    - name: Ensure system timezone
+      file:
+        src: "/usr/share/zoneinfo/{{ system_timezone }}"
+        dest: /etc/localtime
+        state: link
+        force: True
+
+    # LOCALE
+    - name: Ensure locales generated
+      locale_gen:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ locale_language }}.{{ locale_encoding }}"
+        - "{{ locale_origin }}.{{ locale_encoding }}"
+        - "{{ locale_time }}.{{ locale_encoding }}"
+    - name: Ensure locales set
+      template:
+        src: ansible/locale.j2
+        dest: /etc/default/locale
+
+    # SYSUP
+    - name: Ensure upgraded OS packages
+      package:
+        upgrade: full
+        update_cache: True
+
+    # SETUP
+    - name: Ensure OS app packages
+      package:
+        name:
+          - curl # to install Deno
+          - unzip # to install Deno
+          - rsync # for deployment purposes
+        state: latest
+    - name: Verify Deno is installed
+      shell: deno --version
+      register: deno_version
+      failed_when: False
+    - name: Install Deno system-wide
+      shell: "curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh"
+      when: deno_version.rc == 127 # command not found
+      changed_when: True
+    - name: Upgrade Deno
+      shell: deno upgrade
+      register: deno_upgrade
+      changed_when: "'Deno is upgrading' in deno_upgrade.stdout"
+    - name: Ensure app user group
+      group:
+        name: "{{ app_role }}"
+        state: present
+    - name: Ensure app user
+      user:
+        name: "{{ app_role }}"
+        groups: "{{ app_role }}"
+        state: present
+
+    # UPLOAD
+    - name: Ensure app directories
+      file:
+        path: "{{ app_cwd }}"
+        state: directory
+        owner: "{{ app_role }}"
+        group: "{{ app_role }}"
+        mode: 0500
+    - name: Deploy read-only app files
+      ansible.posix.synchronize:
+        src: "./"
+        dest: "{{ app_cwd }}/"
+        recursive: True
+        delete: True
+        times: False # prevents false positives on changed
+        rsync_opts: # order matters: include first, exclude last (you can't re-include excuded files)
+          # common:
+          - "'--include=**.gitignore'"
+          - "'--filter=:- .gitignore'"
+          - "'--exclude=**.git'"
+          - "'--exclude=**.vim'"
+          - "'--exclude=/README.md'"
+          - "'--exclude=**.example'"
+          # ansible:
+          - "'--exclude=/ansible'"
+          - "'--exclude=/ansible.cfg'"
+          - "'--exclude=/playbook.yml'"
+          - "'--exclude=/requirements.yml'"
+          # bruno:
+          - "'--exclude=/collections'"
+          - "'--exclude=/environments'"
+          - "'--exclude=/bruno.json'"
+          # owner/mode:
+          - "-og --chown={{ app_role }}:{{ app_role }}" # -og required by --chown
+          - "-p --chmod=Du=rX,Dg-rwX,Do-rwX,Fu-w,Fg-rwX,Fo-rwX" # -p preserves permissions, chmod then removes write permissions
+      register: deploy_read_only_app_files
+    - name: Configure app environment
+      template:
+        src: ansible/.env.j2
+        dest: "{{ app_cwd }}/.env"
+        owner: "{{ app_role }}"
+        group: "{{ app_role }}"
+        mode: 0400
+
+    # WATCHDOG
+    - name: Ensure app service configuration
+      template:
+        src: ansible/app.service.j2
+        dest: "/usr/lib/systemd/system/cronmon.service"
+    - name: Ensure app service running
+      systemd:
+        name: "cronmon"
+        enabled: True
+        state: restarted
+        masked: False
+      changed_when: False
+
+    # PROXY
+    - name: Ensure OS proxy packages
+      package:
+        name:
+          - nginx
+        state: latest
+    - name: Ensure proxy configuration
+      template:
+        src: ansible/nginx.conf.j2
+        dest: "/etc/nginx/sites-available/{{ proxy_server_name }}.conf"
+    - name: Link proxy configuration
+      file:
+        path: "/etc/nginx/sites-enabled/{{ proxy_server_name }}.conf"
+        src: "../sites-available/{{ proxy_server_name }}.conf"
+        state: link
+    - name: Verify proxy configuration
+      shell: nginx -t
+      changed_when: False
+    - name: Reload proxy configuration
+      shell: nginx -s reload
+      changed_when: False
+
+  post_tasks:
+    - include_role: name=derJD.reboot # reboot if necessary
