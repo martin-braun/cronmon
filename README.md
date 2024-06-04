@@ -22,7 +22,7 @@ The deployment is fully automated via `ansible-playbook` and `ansible-galaxy`. I
 - Install Ansible
 - Run `ansible-galaxy install -r requirements.yml && cp -n inventory.cfg.example inventory.cfg` to bootstrap ansible files (collections, roles and inventory template)
 - Update production remote hosts and variables in `inventory.cfg`
-- Run `ansible-playbook -v playbook.yml` to deploy to all hosts (or `ansible-playbook -v playbook.yml -l localhost:host1:host2:..` for explicit deployment, localhost is mandatory)
+- Run `ansible-playbook -v playbook.yml` to deploy to all hosts (or `ansible-playbook -v playbook.yml -l host1:host2:..` for explicit deployment)
 
 > [!NOTE]
 > If you want to service this proxy via SSL, consider CloudFlare or pfSense. You can also choose to incorperate `certbot` into the `playbook.yml`, but this is no objective of this project.

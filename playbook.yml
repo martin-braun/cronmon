@@ -1,13 +1,3 @@
-- name: Cronmon Local Setup
-  hosts: localhost
-  gather_facts: True
-  tasks:
-    # # DEBUG
-    # - name: Show localhost hostvars
-    #   debug:
-    #     var: hostvars['localhost']
-  # NOTE(martin-braun): We want to gather local facts to compare source and target os_family
-
 - name: Cronmon Server Deploy
   hosts: all
   # gather_facts: False
